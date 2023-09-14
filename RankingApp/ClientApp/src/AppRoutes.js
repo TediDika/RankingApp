@@ -1,7 +1,7 @@
 import { Counter } from "./components/Counter";
 import { FetchData } from "./components/FetchData";
 import { Home } from "./components/Home";
-import RankItems from "./components/RankItems";
+import RankItemsContainer from "./components/RankItemsContainer";
 import MovieImageArr from "./components/MovieImages.js";
 import AlbumImageArr from "./components/AlbumImages.js";
 

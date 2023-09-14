@@ -19,7 +19,7 @@ const MovieImageArr = [
     { id: 7, image: RoadHouse },
     { id: 8, image: Shawshank },
     { id: 9, image: StarTrack4 },
-    { id: 10, image: Superman4 },
+    { id: 10, image: Superman4 }
 
 ];
 
