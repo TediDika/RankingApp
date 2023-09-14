@@ -72,3 +72,10 @@ main {
 .worst-tier {
     background-color: red;
 }
+
+.rank-cell, .row-label {
+    width: 80px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+}

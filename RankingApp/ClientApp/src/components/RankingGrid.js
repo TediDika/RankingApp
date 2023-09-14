@@ -1,4 +1,5 @@
-﻿const RankingGrid = ({ items, imgArr, drag, allowDrop, drop }) => {
+﻿/* eslint-disable jsx-a11y/alt-text */
+const RankingGrid = ({ items, imgArr, drag, allowDrop, drop }) => {
 
     const rankingGrid = [];
     const cellCollectionTop = [];
