@@ -1,37 +1,32 @@
-﻿import { useState } from 'react';
+﻿import { useState, useEffect } from 'react';
 import RankItems from './RankItems';
 
 const RankItemsContainer = ({ dataType, imgArr }) => {
-    const albumLocalStorageKey = "albums";
-    const movieLocalStorageKey = "movies";
 
-    var localStorageKey = "";
-
-    const [albumItems, setAlbumItems] = useState(JSON.parse(localStorage.getItem(albumLocalStorageKey)));
-    const [movieItems, setMovieItems] = useState(JSON.parse(localStorage.getItem(movieLocalStorageKey)));
-
-
-
-    var data = [];
-    var setFunc = null;
-
-    if (dataType === 1) {
-        data = movieItems;
-        setFunc = setMovieItems;
-        localStorageKey = movieLocalStorageKey;
-
-    }
-    else if (dataType === 2) {
-        data = albumItems;
-        setFunc = setAlbumItems;
-        localStorageKey = albumLocalStorageKey;
-
-    }
+    const [itemData, setItemData] = useState(null);
+    
+    useEffect(() => { 
+        if (dataType === 1) {
+            fetch("/api/Item?itemType=1")
+                .then((response) => response.json())
+                .then((data) => {
+                    setItemData(data);
+                })
+                .catch((error) => console.error("Error:", error));
+        }
+        else if (dataType === 2) {
+            fetch("/api/Item?itemType=2")
+                .then((response) => response.json())
+                .then((data) => {
+                    setItemData(data);
+                })
+                .catch((error) => console.error("Error:", error));
+        }
+    }, [dataType])
 
     return (
-        <RankItems items={data} setItems={setFunc} dataType={dataType} imgArr={imgArr} localStorageKey={localStorageKey} />
+        <RankItems items={itemData} setItems={setItemData} dataType={dataType} imgArr={imgArr}  />
     )
-
 
 }
 export default RankItemsContainer;

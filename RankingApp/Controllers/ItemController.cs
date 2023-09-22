@@ -22,13 +22,25 @@ namespace RankingApp.Controllers
 
         // GET: api/Item
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ItemModel>>> GetItems()
+        public async Task<ActionResult<IEnumerable<ItemModel>>> GetItems([FromQuery] int itemType = 0)
         {
-          if (_context.Items == null)
+          
+            
+            if (_context.Items == null)
           {
               return NotFound();
           }
-            return await _context.Items.ToListAsync();
+
+            // If itemType is 0, return all items; otherwise, filter by itemType
+            var itemsQuery = _context.Items.AsQueryable();
+
+            if (itemType != 0)
+            {
+                itemsQuery = itemsQuery.Where(item => item.ItemType == itemType);
+            }
+
+
+            return await itemsQuery.ToListAsync();
         }
 
         // GET: api/Item/5

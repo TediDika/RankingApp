@@ -4,12 +4,46 @@ import MovieImageArr from "./MovieImages.js";
 import RankingGrid from "./RankingGrid";
 import ItemCollection from "./ItemCollection";
 
-const RankItems = ({items, setItems, dataType, imgArr, localStorageKey }) => {
+const RankItems = ({items, setItems, dataType, imgArr }) => {
 
-    const [reload, setReload] = useState(false);
 
-    function Reload(){
-        setReload(true);
+    const [update, setUpdate] = useState(false);
+
+    async function Reload() {
+
+        const updatedItems = items.map(item => ({ ...item, ranking: 0 }));
+        for (const item of updatedItems) {
+            let response;
+            try {
+                if (dataType === 1) {
+                    response = await fetch(`/api/Item/${item.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(item),
+                    });
+                }
+                else if (dataType === 2) {
+                    response = await fetch(`/api/Item/${item.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(item),
+                    });
+                }
+
+                if (!response.ok) {
+                    console.error('Error:', response.status);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        setItems(updatedItems);
+        setUpdate(prevState => !prevState);
     }
 
     function drag(ev) {
@@ -20,8 +54,7 @@ const RankItems = ({items, setItems, dataType, imgArr, localStorageKey }) => {
         ev.preventDefault();
     }
 
-
-    function drop(ev) {
+    async function drop(ev) {
         ev.preventDefault();
         const targetElm = ev.target;
         if (targetElm.nodeName === "IMG") {
@@ -29,42 +62,69 @@ const RankItems = ({items, setItems, dataType, imgArr, localStorageKey }) => {
         }
         if (targetElm.childNodes.length === 0) {
             var data = parseInt(ev.dataTransfer.getData("text").substring(5));
-            const transformedCollection = items.map((item) => (item.id === parseInt(data)) ?
-                { ...item, ranking: parseInt(targetElm.id.substring(5)) } : { ...item, ranking: item.ranking });
-            setItems(transformedCollection);
+
+            const updatedItem = items.find(item => item.id === parseInt(data));
+            updatedItem.ranking = parseInt(targetElm.id.substring(5));
+
+            let result;
+            try {
+
+                if (dataType === 1) {
+                    result = await fetch(`/api/Item/${updatedItem.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(updatedItem),
+                    });
+                }
+                else if (dataType === 2) {
+                    result = await fetch(`/api/Item/${updatedItem.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(updatedItem),
+                    });
+                }
+
+                if (result.ok) { 
+                    const data = await result.text(); 
+
+                    if (data) { 
+                        const jsonData = JSON.parse(data); 
+                        console.log(jsonData);
+                    }
+                } else {
+                    console.error('Error:', result.status);
+                }
+                
+                const responseAll = await fetch(`/api/Item`);
+                const dataAll = await responseAll.json();
+                setItems(dataAll);
+                setUpdate(prevState => !prevState);
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
     }
 
-
-   
-    useEffect(() => {
-        if (items == null) {
-            getDataFromApi();
-        }
-    }, [dataType]);
-
-    function getDataFromApi() {
-        fetch(`item/${dataType}`)
-            .then((results) => {
-                return results.json();
-            })
-            .then(data => {
-                setItems(data);
-            })
+   async function getDataFromApi() {
+       if (dataType === 1 || dataType === 2) {
+           fetch(`/api/Item`)
+               .then((results) => {
+                   return results.json();
+               })
+               .then(data => {
+                   setItems(data);
+               })
+               .catch((error) => console.error("Error:", error));
+       }
     }
 
     useEffect(() => {
-        if (items != null) { 
-            localStorage.setItem(localStorageKey, JSON.stringify(items));
-        }
-        setReload(false);
-    },[items])
-
-    useEffect(() => {
-        if (reload === true) {
-            getDataFromApi();
-        }
-    },[reload]) 
+        getDataFromApi();
+    },[update])
 
     return (
         (items != null)?
