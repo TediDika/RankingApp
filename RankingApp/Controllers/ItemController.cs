@@ -92,7 +92,7 @@ namespace RankingApp.Controllers
             _context.Items.Add(itemModel);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetItemModel", new { id = itemModel.Id }, itemModel);
+            return CreatedAtAction(nameof(GetItemModel), new { id = itemModel.Id }, itemModel);
         }
 
         // DELETE: api/Item/5

@@ -1,6 +1,7 @@
 {
   "name": "rankingapp",
   "version": "0.1.0",
+  "proxy": "https://localhost:7295",
   "private": true,
   "dependencies": {
     "bootstrap": "^5.2.3",
