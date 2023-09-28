@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,18 +15,20 @@ namespace RankingApp.Controllers
     public class ItemController : ControllerBase
     {
         private readonly ItemContext _context;
+        private readonly IMapper _mapper;
 
-        public ItemController(ItemContext context)
+        public ItemController(ItemContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         // GET: api/Item
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ItemModel>>> GetItems([FromQuery] int itemType = 0)
+        public async Task<ActionResult<IEnumerable<ItemModelDTO>>> GetItems([FromQuery] int itemType = 0)
         {
-          
-            
+
+
             if (_context.Items == null)
           {
               return NotFound();
@@ -39,13 +42,14 @@ namespace RankingApp.Controllers
                 itemsQuery = itemsQuery.Where(item => item.ItemType == itemType);
             }
 
-
-            return await itemsQuery.ToListAsync();
+            var items = await itemsQuery.ToListAsync();
+            var itemDTO = _mapper.Map<List<ItemModelDTO>>(items);
+            return itemDTO;
         }
 
         // GET: api/Item/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ItemModel>> GetItemModel(int id)
+        public async Task<ActionResult<ItemModelDTO>> GetItemModel(int id)
         {
           if (_context.Items == null)
           {
@@ -58,7 +62,8 @@ namespace RankingApp.Controllers
                 return NotFound();
             }
 
-            return itemModel;
+            ItemModelDTO itemModelDTO = _mapper.Map<ItemModelDTO>(itemModel);
+            return itemModelDTO;
         }
 
         // PUT: api/Item/5

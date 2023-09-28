@@ -14,6 +14,8 @@ builder.Services.AddDbContext<ItemContext>(opt =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAutoMapper(typeof(Program));
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
