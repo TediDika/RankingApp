@@ -1,5 +1,7 @@
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using RankingApp.Models;
+using RankingApp.Validator;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +17,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddControllersWithViews();
+
+builder.Services.AddControllers()
+    .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ItemValidator>());
 
 var app = builder.Build();
 
