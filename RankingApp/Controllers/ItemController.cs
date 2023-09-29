@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RankingApp.Models;
+using RankingApp.Repositories;
 
 namespace RankingApp.Controllers
 {
@@ -16,11 +17,13 @@ namespace RankingApp.Controllers
     {
         private readonly ItemContext _context;
         private readonly IMapper _mapper;
+        private UnitOfWork _unitOfWork;
 
-        public ItemController(ItemContext context, IMapper mapper)
+        public ItemController(ItemContext context, IMapper mapper, UnitOfWork unitOfWork)
         {
             _context = context;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: api/Item
@@ -42,7 +45,7 @@ namespace RankingApp.Controllers
                 itemsQuery = itemsQuery.Where(item => item.ItemType == itemType);
             }
 
-            var items = await itemsQuery.ToListAsync();
+            var items = _unitOfWork.ItemRepository.GetItems();
             var itemDTO = _mapper.Map<List<ItemModelDTO>>(items);
             return itemDTO;
         }
@@ -55,7 +58,7 @@ namespace RankingApp.Controllers
           {
               return NotFound();
           }
-            var itemModel = await _context.Items.FindAsync(id);
+            var itemModel = _unitOfWork.ItemRepository.GetItemByID(id);
 
             if (itemModel == null)
             {
@@ -76,11 +79,11 @@ namespace RankingApp.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(itemModel).State = EntityState.Modified;
+            _unitOfWork.ItemRepository.UpdateItem(itemModel);
 
             try
             {
-                await _context.SaveChangesAsync();
+                _unitOfWork.Save();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -102,12 +105,8 @@ namespace RankingApp.Controllers
         [HttpPost]
         public async Task<ActionResult<ItemModel>> PostItemModel(ItemModel itemModel)
         {
-          if (_context.Items == null)
-          {
-              return Problem("Entity set 'ItemContext.Items'  is null.");
-          }
-            _context.Items.Add(itemModel);
-            await _context.SaveChangesAsync();
+            _unitOfWork.ItemRepository.InsertItem(itemModel);
+            _unitOfWork.Save();
 
             return CreatedAtAction(nameof(GetItemModel), new { id = itemModel.Id }, itemModel);
         }
@@ -116,25 +115,21 @@ namespace RankingApp.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteItemModel(int id)
         {
-            if (_context.Items == null)
-            {
-                return NotFound();
-            }
-            var itemModel = await _context.Items.FindAsync(id);
+            var itemModel = _unitOfWork.ItemRepository.GetItemByID(id);
             if (itemModel == null)
             {
                 return NotFound();
             }
 
-            _context.Items.Remove(itemModel);
-            await _context.SaveChangesAsync();
+            _unitOfWork.ItemRepository.DeleteItem(id);
+            _unitOfWork.Save();
 
             return NoContent();
         }
 
         private bool ItemModelExists(int id)
         {
-            return (_context.Items?.Any(e => e.Id == id)).GetValueOrDefault();
+            return _unitOfWork.ItemRepository.GetItemByID(id) != null;
         }
     }
 }

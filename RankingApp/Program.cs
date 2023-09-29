@@ -1,6 +1,7 @@
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using RankingApp.Models;
+using RankingApp.Repositories;
 using RankingApp.Validator;
 
 

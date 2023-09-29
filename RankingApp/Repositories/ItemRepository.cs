@@ -7,7 +7,7 @@ using RankingApp.Models;
 using RankingApp;
 using RankingApp.Repositories;
 
-namespace RankingApp.ItemRepository
+namespace RankingApp.Repositories
 {
     public class ItemRepository : IItemRepository, IDisposable
     {
